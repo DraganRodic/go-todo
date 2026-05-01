@@ -17,16 +17,24 @@ coverage.*
 *.coverprofile
 profile.cov
 
-# Dependency directories (remove the comment below to include it)
+# Dependency directories (uncomment if needed)
 # vendor/
 
 # Go workspace file
 go.work
 go.work.sum
 
-# env file
+# Environment variables (DO NOT COMMIT)
 .env
 
-# Editor/IDE
-# .idea/
-# .vscode/
+# Swagger generated files (auto-generated, do not commit)
+docs/swagger.json
+docs/swagger.yaml
+
+# Optional: ignore all generated swagger files
+# docs/*.json
+# docs/*.yaml
+
+# Editor/IDE files
+.vscode/
+.idea/
