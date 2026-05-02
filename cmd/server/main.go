@@ -2,6 +2,8 @@ package main
 
 import (
 	_ "todo-api/docs"
+	"todo-api/internal/database"
+	"todo-api/internal/routes"
 
 	"github.com/gin-gonic/gin"
 
@@ -9,26 +11,17 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 )
 
-// Ping godoc
-// @Summary Ping test
-// @Description test endpoint
-// @Tags test
-// @Produce json
-// @Success 200 {object} map[string]string
-// @Router /ping [get]
-func Ping(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"message": "pong",
-	})
-}
-
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 func main() {
+	db := database.Connect()
+
 	r := gin.Default()
 
-	// Swagger endpoint
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	r.GET("/ping", Ping)
+	routes.SetupRoutes(r, db)
 
 	r.Run(":8080")
 }
