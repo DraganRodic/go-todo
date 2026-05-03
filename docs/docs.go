@@ -111,9 +111,191 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/todos": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "todos"
+                ],
+                "summary": "Get user todos",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Todo"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "todos"
+                ],
+                "summary": "Create todo",
+                "parameters": [
+                    {
+                        "description": "Todo data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.CreateTodoRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/todos/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "todos"
+                ],
+                "summary": "Get todo by id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Todo ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Todo"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "todos"
+                ],
+                "summary": "Delete todo",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Todo ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "todos"
+                ],
+                "summary": "Update todo (partial)",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Todo ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Todo data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.UpdateTodoRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Todo"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "handler.CreateTodoRequest": {
+            "type": "object",
+            "properties": {
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
         "handler.LoginRequest": {
             "type": "object",
             "properties": {
@@ -136,6 +318,37 @@ const docTemplate = `{
                 },
                 "username": {
                     "type": "string"
+                }
+            }
+        },
+        "handler.UpdateTodoRequest": {
+            "type": "object",
+            "properties": {
+                "completed": {
+                    "type": "boolean"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Todo": {
+            "type": "object",
+            "properties": {
+                "completed": {
+                    "type": "boolean"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
                 }
             }
         }
