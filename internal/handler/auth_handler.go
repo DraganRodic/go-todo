@@ -82,18 +82,3 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		"token": token,
 	})
 }
-
-// Test godoc
-// @Summary Test protected route
-// @Tags test
-// @Produce json
-// @Security BearerAuth
-// @Success 200 {object} map[string]interface{}
-// @Router /api/test [get]
-func (h *AuthHandler) Test(c *gin.Context) {
-	userID, _ := c.Get("user_id")
-
-	c.JSON(200, gin.H{
-		"user_id": userID,
-	})
-}

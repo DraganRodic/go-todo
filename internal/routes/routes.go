@@ -21,8 +21,6 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB) {
 	protected := api.Group("/")
 	protected.Use(middleware.AuthMiddleware())
 
-	protected.GET("/test", authHandler.Test)
-
 	todoHandler := handler.NewTodoHandler(db)
 	protected.POST("/todos", todoHandler.CreateTodo)
 	protected.GET("/todos", todoHandler.GetTodos)
