@@ -2,11 +2,14 @@ package utils
 
 import (
 	"time"
+	"todo-api/internal/config"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var secret = []byte("secret_key")
+func getSecret() []byte {
+	return []byte(config.AppConfig.JWTSecret)
+}
 
 func GenerateToken(userID uint) (string, error) {
 	claims := jwt.MapClaims{
@@ -15,11 +18,11 @@ func GenerateToken(userID uint) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(secret)
+	return token.SignedString(getSecret())
 }
 
 func ParseToken(tokenStr string) (*jwt.Token, error) {
 	return jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
-		return secret, nil
+		return getSecret(), nil
 	})
 }

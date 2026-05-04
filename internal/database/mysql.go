@@ -3,6 +3,7 @@ package database
 import (
 	"log"
 
+	"todo-api/internal/config"
 	"todo-api/internal/models"
 
 	"gorm.io/driver/mysql"
@@ -10,7 +11,11 @@ import (
 )
 
 func Connect() *gorm.DB {
-	dsn := "root:G@girodic2000@tcp(127.0.0.1:3306)/todo_db?charset=utf8mb4&parseTime=True&loc=Local"
+	cfg := config.AppConfig
+
+	dsn := cfg.DBUser + ":" + cfg.DBPass +
+		"@tcp(" + cfg.DBHost + ":" + cfg.DBPort + ")/" +
+		cfg.DBName + "?charset=utf8mb4&parseTime=True&loc=Local"
 
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {

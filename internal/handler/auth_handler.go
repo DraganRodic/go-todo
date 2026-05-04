@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"todo-api/internal/repository"
 	"todo-api/internal/service"
+	"todo-api/internal/utils"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -21,64 +22,66 @@ func NewAuthHandler(db *gorm.DB) *AuthHandler {
 }
 
 type RegisterRequest struct {
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Username string `json:"username" binding:"required,min=3"`
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required,min=6"`
 }
 
-// Register godoc
+type LoginRequest struct {
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required"`
+}
+
 // @Summary Register user
 // @Tags auth
 // @Accept json
 // @Produce json
 // @Param data body RegisterRequest true "User data"
 // @Success 201 {object} map[string]string
+// @Failure 400 {object} map[string]string
 // @Router /api/register [post]
 func (h *AuthHandler) Register(c *gin.Context) {
 	var req RegisterRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.HandleValidationError(c, err)
 		return
 	}
 
-	err := h.service.Register(req.Username, req.Email, req.Password)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if err := h.service.Register(req.Username, req.Email, req.Password); err != nil {
+		utils.Error(c, utils.NewBadRequest(err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"message": "user created"})
+	utils.Success(c, http.StatusCreated, gin.H{
+		"message": "user created",
+	})
 }
 
-type LoginRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
-// Login godoc
 // @Summary Login user
 // @Tags auth
 // @Accept json
 // @Produce json
 // @Param data body LoginRequest true "Login data"
 // @Success 200 {object} map[string]string
+// @Failure 400 {object} map[string]string
+// @Failure 401 {object} map[string]string
 // @Router /api/login [post]
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req LoginRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.HandleValidationError(c, err)
 		return
 	}
 
 	token, err := h.service.Login(req.Email, req.Password)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
+		utils.Error(c, utils.NewUnauthorized("invalid credentials"))
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
+	utils.Success(c, http.StatusOK, gin.H{
 		"token": token,
 	})
 }
