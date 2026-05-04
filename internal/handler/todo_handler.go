@@ -64,19 +64,59 @@ func (h *TodoHandler) CreateTodo(c *gin.Context) {
 // @Tags todos
 // @Produce json
 // @Security BearerAuth
-// @Success 200 {array} models.Todo
+// @Param page query int false "Page number"
+// @Param limit query int false "Items per page"
+// @Param completed query bool false "Filter by completed (true/false)"
+// @Param sort query string false "Sort by created_at (asc/desc)"
+// @Success 200 {object} map[string]interface{}
 // @Failure 500 {object} map[string]string
 // @Router /api/todos [get]
 func (h *TodoHandler) GetTodos(c *gin.Context) {
 	userID, _ := c.Get("user_id")
 
-	todos, err := h.service.GetTodos(userID.(uint))
+	// pagination
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 {
+		limit = 10
+	}
+	offset := (page - 1) * limit
+
+	// filtering
+	completedStr := c.Query("completed")
+	var completed *bool
+	if completedStr != "" {
+		val, err := strconv.ParseBool(completedStr)
+		if err != nil {
+			utils.Error(c, utils.NewBadRequest("completed must be true or false"))
+			return
+		}
+		completed = &val
+	}
+
+	// sorting
+	sort := c.DefaultQuery("sort", "desc") // asc | desc
+	if sort != "asc" && sort != "desc" {
+		utils.Error(c, utils.NewBadRequest("sort must be 'asc' or 'desc'"))
+		return
+	}
+
+	todos, total, err := h.service.GetTodosAdvanced(userID.(uint), limit, offset, completed, sort)
 	if err != nil {
 		utils.Error(c, utils.NewInternal(err.Error()))
 		return
 	}
 
-	utils.Success(c, http.StatusOK, todos)
+	utils.Success(c, http.StatusOK, gin.H{
+		"data":  todos,
+		"page":  page,
+		"limit": limit,
+		"total": total,
+	})
 }
 
 // @Summary Get todo by id

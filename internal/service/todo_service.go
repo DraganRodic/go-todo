@@ -58,3 +58,12 @@ func (s *TodoService) DeleteTodo(userID, id uint) error {
 
 	return s.repo.Delete(todo)
 }
+
+func (s *TodoService) GetTodosAdvanced(
+	userID uint,
+	limit, offset int,
+	completed *bool,
+	sort string,
+) ([]models.Todo, int64, error) {
+	return s.repo.GetAdvanced(userID, limit, offset, completed, sort)
+}
